@@ -1,7 +1,7 @@
 import gym
 from gym import spaces
 import numpy as np
-from collections import defaultdict, deque
+from collections import defaultdict, deque, OrderedDict
 import dill
 
 def stack_repeated(x, n):
@@ -132,11 +132,29 @@ class MultiStepWrapper(gym.Wrapper):
             return stack_last_n_obs(self.obs, n_steps)
         elif isinstance(self.observation_space, spaces.Dict):
             result = dict()
+            # this is super hacky and awful, but a quick way to handle 
+            # maniskill2's stupid nesting.
             for key in self.observation_space.keys():
-                result[key] = stack_last_n_obs(
-                    [obs[key] for obs in self.obs],
-                    n_steps
-                )
+                if type(self.obs[0][key]) in [OrderedDict, dict]:
+                    result[key] = dict()
+                    for k2 in self.obs[0][key].keys():
+                        if type(self.obs[0][key][k2]) in [OrderedDict, dict]:
+                            result[key][k2] = dict()
+                            for k3 in self.obs[0][key][k2].keys():
+                                result[key][k2][k3] = stack_last_n_obs(
+                                    [obs[key][k2][k3] for obs in self.obs],
+                                    n_steps
+                                )
+                        else:
+                            result[key][k2] = stack_last_n_obs(
+                                [obs[key][k2] for obs in self.obs],
+                                n_steps
+                            )
+                else:
+                    result[key] = stack_last_n_obs(
+                        [obs[key] for obs in self.obs],
+                        n_steps
+                    )
             return result
         else:
             raise RuntimeError('Unsupported space type')
