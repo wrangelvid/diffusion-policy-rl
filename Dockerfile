@@ -23,11 +23,8 @@ RUN micromamba install -y -n base -f /src/conda_environment_docker.yaml && \
 ARG MAMBA_DOCKERFILE_ACTIVATE=1  
 
 # Install python dependencies
-RUN pip install mani_skill2
+RUN pip install -r  docker_pip_requirements.txt mani_skill2
 
 # Copy over all source code
 WORKDIR /src/
 COPY . /src/
-
-# Set environment for RL
-ENV ENV_ID PickSingleEGAD-v0
