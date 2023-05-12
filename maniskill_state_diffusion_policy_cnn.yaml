@@ -73,14 +73,15 @@ policy:
   n_action_steps: 8
   n_obs_steps: 2
   noise_scheduler:
-    _target_: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
+    _target_: diffusers.schedulers.scheduling_ddim.DDIMScheduler
+    #_target_: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
     beta_end: 0.02
     beta_schedule: squaredcos_cap_v2
     beta_start: 0.0001
     clip_sample: true
     num_train_timesteps: 100
     prediction_type: epsilon
-    variance_type: fixed_small
+    # variance_type: fixed_small
   num_inference_steps: 100
   oa_step_convention: true
   obs_as_global_cond: false
@@ -103,7 +104,6 @@ task:
     _target_: diffusion_policy.env_runner.maniskill_runner.ManiskillStateRunner
     env_id: PickSingleEGAD-v0
     control_mode: pd_ee_delta_pose
-    observation_mode: state
     fps: 10
     max_steps: 300
     n_action_steps: 8
@@ -114,12 +114,11 @@ task:
     n_test_vis: 4 #4
     n_train: 6
     n_train_vis: 2 #2
-    past_action: false
     test_start_seed: 100000
     train_start_seed: 0
   name: maniskill_state
   obs_dim: 51
-task_name: maniskill_state
+task_name: PickSingleEGAD-v0
 training:
   checkpoint_every: 100
   debug: false
@@ -136,7 +135,7 @@ training:
   seed: 42
   tqdm_interval_sec: 1.0
   use_ema: true
-  val_every: 100
+  val_every: 400
 val_dataloader:
   batch_size: 256
   num_workers: 1
